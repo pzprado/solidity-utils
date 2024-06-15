@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 import { HardhatUserConfig } from 'hardhat/config';
 import { HardhatNetworkUserConfig } from 'hardhat/types';
 import { Networks, getNetwork } from './hardhat-setup';
+import '@nomicfoundation/hardhat-foundry';
 
 dotenv.config();
 
