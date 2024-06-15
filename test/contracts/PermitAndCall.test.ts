@@ -4,7 +4,6 @@ import { ethers } from 'hardhat';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { PermitAndCallMock } from '../../typechain-types';
-import { constants } from '../../src/prelude';
 
 const value = 42n;
 
