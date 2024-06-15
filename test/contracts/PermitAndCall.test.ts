@@ -1,9 +1,10 @@
 import { expect } from '../../src/expect';
-import { getPermit, trim0x } from '../../src/permit';
+import { defaultDeadlinePermit2, getPermit, getPermit2, permit2Contract, trim0x } from '../../src/permit';
 import { ethers } from 'hardhat';
 import { SignerWithAddress } from '@nomicfoundation/hardhat-ethers/signers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { PermitAndCallMock } from '../../typechain-types';
+import { constants } from '../../src/prelude';
 
 const value = 42n;
 
@@ -51,6 +52,17 @@ describe('Permitable', function () {
         await expect(tx).to.emit(permitAndCallMock, 'FooCalled');
         expect(await erc20PermitMock.allowance(signer1.address, permitAndCallMock.target)).to.equal(value);
         expect(await erc20PermitMock.allowance(signer2.address, permitAndCallMock.target)).to.equal(value);
+    });
+
+    it('should work with valid permit2', async function () {
+        const { permitAndCallMock, erc20PermitMock, chainId } = await loadFixture(deployTokens);
+        const permitContract = await permit2Contract();
+        const permit2 = await getPermit2(signer1, await erc20PermitMock.getAddress(), chainId, signer2.address, value, false, defaultDeadlinePermit2, defaultDeadlinePermit2);
+        const tx = await permitAndCallMock.permitAndCall(erc20PermitMock.target + trim0x(permit2), (await permitAndCallMock.foo.populateTransaction()).data);
+        await expect(tx).to.emit(permitAndCallMock, 'FooCalled');
+        const allowance = await permitContract.allowance(signer1, erc20PermitMock, signer2);
+        expect(allowance.amount).to.equal(value);
+        expect(allowance.nonce).to.equal(1);
     });
 
     it('should work with payable function', async function () {
